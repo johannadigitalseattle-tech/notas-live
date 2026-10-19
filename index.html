@@ -166,12 +166,12 @@
 </div>
 
 <script>
-  // Cada 3 minutos sale UNA notita, se queda 30 segundos y se esconde.
+  // Cada 3 minutos sale UNA notita, se queda 10 segundos y se esconde.
   // A los 3 minutos sale la siguiente, en bucle infinito.
   // Para probar rápido, agrega ?demo al final del link (sale 6 seg cada 10 seg, fondo gris).
   const DEMO = new URLSearchParams(location.search).has('demo');
   if (DEMO) document.body.classList.add('demo');
-  const SHOW  = DEMO ? 6000  : 30 * 1000;      // 30 segundos visible
+  const SHOW  = DEMO ? 6000  : 10 * 1000;      // 10 segundos visible
   const EVERY = DEMO ? 10000 : 3 * 60 * 1000;  // una notita cada 3 minutos
   const OUT   = 900;                           // lo que dura la salida
 
