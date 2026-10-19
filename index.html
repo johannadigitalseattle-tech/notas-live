@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notitas Live Johanna</title>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --texto:#8A2E55;      /* rosa oscuro suave para leer bien */
+    --fucsia:#EC4899;     /* solo detalles */
+    --rosita:#FFD9E8;
+    --durazno:#FFE6D6;
+    --menta:#DDF5EA;
+    --cinta:rgba(249,168,212,.75);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;background:transparent;overflow:hidden;font-family:'Mali','Poppins','Helvetica Neue',Arial,sans-serif}
+  body.demo{background:#3a3a3a}
+  .stage{position:fixed;inset:0;pointer-events:none}
+
+  /* ===== Notita: entrada, salida ===== */
+  .slide{
+    position:absolute;left:50%;margin-left:-29vw;width:58vw;bottom:10vh;
+    opacity:0;visibility:hidden;transform-origin:50% 0;
+  }
+  .slide.active{visibility:visible;animation:dropIn 1.5s cubic-bezier(.3,.7,.4,1) forwards}
+  .slide.leaving{visibility:visible;animation:peelOut .9s ease-in forwards}
+  @keyframes dropIn{
+    0%  {opacity:0;transform:translateY(-30vh) rotate(-14deg)}
+    45% {opacity:1;transform:translateY(1.5vw) rotate(5deg)}
+    65% {transform:translateY(-.6vw) rotate(-3deg)}
+    82% {transform:translateY(.3vw) rotate(1.5deg)}
+    100%{opacity:1;transform:translateY(0) rotate(0)}
+  }
+  @keyframes peelOut{
+    0%  {opacity:1;transform:none}
+    100%{opacity:0;transform:translateY(5vw) rotate(10deg) scale(.92)}
+  }
+
+  /* ===== El papelito ===== */
+  .note{
+    --tilt:-2deg;
+    position:relative;text-align:center;color:var(--texto);
+    padding:6vw 4.5vw 5vw;border-radius:1.2vw;
+    background:
+      repeating-linear-gradient(transparent 0 5.2vw, rgba(138,46,85,.06) 5.2vw calc(5.2vw + 1px)),
+      linear-gradient(170deg, rgba(255,255,255,.55), rgba(255,255,255,0) 60%),
+      var(--papel);
+    box-shadow:0 1.6vw 3vw -1.2vw rgba(138,46,85,.35), 0 .3vw .6vw rgba(0,0,0,.06);
+    transform-origin:50% 0;
+    animation:sway 5s ease-in-out infinite;
+  }
+  .rosa   {--papel:var(--rosita)}
+  .durazno{--papel:var(--durazno);--tilt:1.5deg}
+  .menta  {--papel:var(--menta);--tilt:-1deg}
+  @keyframes sway{
+    0%,100%{transform:rotate(calc(var(--tilt) - 1.3deg))}
+    50%    {transform:rotate(calc(var(--tilt) + 1.3deg))}
+  }
+  /* esquinita doblada */
+  .note::after{
+    content:"";position:absolute;right:0;bottom:0;width:5vw;height:5vw;
+    background:linear-gradient(135deg, var(--papel) 50%, rgba(138,46,85,.12) 50%, rgba(255,255,255,.7) 100%);
+    border-top-left-radius:1vw;
+  }
+  /* cinta washi */
+  .tape{
+    position:absolute;top:-2.2vw;left:50%;width:17vw;height:4.4vw;margin-left:-8.5vw;
+    background:
+      radial-gradient(circle, rgba(255,255,255,.85) 18%, transparent 20%) 0 0/1.6vw 1.6vw,
+      var(--cinta);
+    transform:rotate(-4deg);opacity:.9;
+    box-shadow:0 .2vw .4vw rgba(0,0,0,.06);
+    clip-path:polygon(2% 0,98% 4%,100% 50%,97% 100%,3% 96%,0 50%);
+  }
+  .durazno .tape{transform:rotate(3deg);background:repeating-linear-gradient(45deg, rgba(255,255,255,.6) 0 .8vw, transparent .8vw 1.6vw), rgba(253,186,116,.6)}
+  .menta .tape{transform:rotate(-2deg);background:repeating-linear-gradient(90deg, rgba(255,255,255,.6) 0 .7vw, transparent .7vw 1.4vw), rgba(249,168,212,.7)}
+
+  .title{font-weight:700;font-size:6.4vw;line-height:1.15}
+  .sub{font-weight:600;font-size:3.4vw;margin-top:1.6vw}
+  .sub small{display:block;font-weight:500;font-size:3.2vw;opacity:.8;margin-top:.4vw}
+  .marker{display:inline-block;margin-top:2vw;padding:.4vw 2vw;font-weight:700;font-size:3.4vw;white-space:nowrap;
+          background:linear-gradient(transparent 35%, rgba(249,168,212,.75) 35% 88%, transparent 88%)}
+
+  /* ===== Garabatitos que se dibujan solos ===== */
+  .doodle{display:block;margin:0 auto 1.6vw;overflow:visible}
+  .draw{fill:none;stroke:var(--fucsia);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+        stroke-dasharray:1;stroke-dashoffset:1}
+  .slide.active .draw{animation:draw 1.6s .9s ease-out forwards}
+  .slide.active .draw.late{animation-delay:1.8s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .fillin{fill:var(--fucsia);opacity:0}
+  .slide.active .fillin{animation:fillin .6s 2.3s ease-out forwards}
+  @keyframes fillin{to{opacity:.18}}
+
+  /* ===== Brillitos suaves ===== */
+  .tw{position:absolute;color:#fff;animation:tw 2.6s ease-in-out infinite;
+      text-shadow:0 0 1.2vw rgba(255,255,255,.95),0 0 2.5vw rgba(249,168,212,.9)}
+  .s1{top:-4vw;left:-3vw;font-size:5vw}
+  .s2{top:3vw;right:-4vw;font-size:3.6vw;animation-delay:.7s}
+  .s3{bottom:-3vw;left:6vw;font-size:3.2vw;animation-delay:1.4s}
+  .s4{bottom:4vw;right:-2.5vw;font-size:4.4vw;animation-delay:2s}
+  .s5{top:-5vw;right:9vw;font-size:2.8vw;animation-delay:1.1s}
+  @keyframes tw{0%,100%{opacity:.15;transform:scale(.5) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(30deg)}}
+
+  .floater{position:fixed;pointer-events:none;animation:rise var(--dur) ease-out forwards;
+           text-shadow:0 0 1vw rgba(255,255,255,.9)}
+  @keyframes rise{
+    0%{opacity:0;transform:translate(0,0) scale(.5)}
+    20%{opacity:.95}
+    100%{opacity:0;transform:translate(var(--dx),-22vh) scale(1) rotate(var(--rot))}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- 1. Gracias por seguirme (rosita) -->
+  <div class="slide">
+    <span class="tw s1">✦</span><span class="tw s2">✦</span><span class="tw s3">✧</span><span class="tw s4">✦</span><span class="tw s5">✦</span>
+    <div class="note rosa">
+      <span class="tape"></span>
+      <svg class="doodle" width="11vw" height="10vw" viewBox="0 0 44 40" style="width:11vw;height:10vw">
+        <path class="fillin" d="M22 36 C10 27 3 20 3 12 C3 6 8 2 13 2 C17 2 20 4 22 8 C24 4 27 2 31 2 C36 2 41 6 41 12 C41 20 34 27 22 36Z"/>
+        <path class="draw" pathLength="1" d="M22 36 C10 27 3 20 3 12 C3 6 8 2 13 2 C17 2 20 4 22 8 C24 4 27 2 31 2 C36 2 41 6 41 12 C41 20 34 27 22 36Z"/>
+      </svg>
+      <div class="title">¡Gracias por seguirme!</div>
+      <div class="sub">bienvenida a la familia, bella&nbsp;♡</div>
+    </div>
+  </div>
+
+  <!-- 2. WhatsApp (durazno) -->
+  <div class="slide">
+    <span class="tw s1">✦</span><span class="tw s2">✦</span><span class="tw s3">✧</span><span class="tw s4">✦</span><span class="tw s5">✦</span>
+    <div class="note durazno">
+      <span class="tape"></span>
+      <svg class="doodle" viewBox="0 0 40 40" style="width:10vw;height:10vw">
+        <path class="fillin" d="M20 4C11.2 4 4 10.9 4 19.4c0 3 .9 5.9 2.4 8.3L4.6 35.4l8-2.1c2.2 1.2 4.7 1.8 7.4 1.8 8.8 0 16-6.9 16-15.4S28.8 4 20 4z"/>
+        <path class="draw" pathLength="1" d="M20 4C11.2 4 4 10.9 4 19.4c0 3 .9 5.9 2.4 8.3L4.6 35.4l8-2.1c2.2 1.2 4.7 1.8 7.4 1.8 8.8 0 16-6.9 16-15.4S28.8 4 20 4z"/>
+        <path class="draw late" pathLength="1" d="M14.5 12.5c.8 0 1.2.2 1.6 1.2l1.2 2.8c.2.5 0 1-.3 1.3l-.9 1c1 2 2.6 3.6 4.6 4.6l1-.9c.3-.3.8-.5 1.3-.3l2.8 1.2c1 .4 1.2.8 1.2 1.6-.3 1.6-1.8 2.8-3.5 2.6-5.2-.6-9.5-4.9-10.1-10.1-.2-1.7 1-3.2 2.6-3.5z"/>
+      </svg>
+      <div class="title">Únete a mi grupo de WhatsApp</div>
+      <svg viewBox="0 0 120 10" style="width:30vw;height:2.6vw;display:block;margin:.8vw auto 0;overflow:visible">
+        <path class="draw late" pathLength="1" d="M2 6 Q 12 1 22 6 T 42 6 T 62 6 T 82 6 T 102 6 T 118 5"/>
+      </svg>
+      <div class="sub">link en mi bio ♡</div>
+    </div>
+  </div>
+
+  <!-- 3. Próximo taller (menta) -->
+  <div class="slide">
+    <span class="tw s1">✦</span><span class="tw s2">✦</span><span class="tw s3">✧</span><span class="tw s4">✦</span><span class="tw s5">✦</span>
+    <div class="note menta">
+      <span class="tape"></span>
+      <svg class="doodle" viewBox="0 0 44 40" style="width:11vw;height:10vw">
+        <path class="draw" pathLength="1" d="M6 9 H38 Q40 9 40 11 V35 Q40 37 38 37 H6 Q4 37 4 35 V11 Q4 9 6 9Z M4 17 H40 M13 4 V12 M31 4 V12"/>
+        <text x="22" y="32" text-anchor="middle" font-family="Mali" font-weight="700" font-size="13" fill="#EC4899">24</text>
+      </svg>
+      <div class="title">Próximo taller en Zoom</div>
+      <div class="marker">Claude Lab · Boss Edition</div>
+      <div class="sub">sábado 24 de octubre · 9&nbsp;AM<small>hora del Pacífico</small></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Cada notita se muestra 5 minutos y rota en bucle infinito.
+  // Para probar rápido, agrega ?demo al final del link (cambia cada 8 segundos, fondo gris).
+  const DEMO = new URLSearchParams(location.search).has('demo');
+  if (DEMO) document.body.classList.add('demo');
+  const SHOW = DEMO ? 8000 : 5 * 60 * 1000;
+  const OUT  = 900;   // lo que dura la salida
+  const GAP  = 600;   // pausita antes de la siguiente
+
+  const slides = [...document.querySelectorAll('.slide')];
+  const stage  = document.querySelector('.stage');
+  let i = 0;
+
+  function show(n){ slides[n].classList.remove('leaving'); slides[n].classList.add('active'); }
+  function next(){
+    const cur = slides[i];
+    cur.classList.remove('active'); cur.classList.add('leaving');
+    setTimeout(() => {
+      cur.classList.remove('leaving');
+      i = (i + 1) % slides.length;
+      setTimeout(() => { show(i); setTimeout(next, SHOW); }, GAP);
+    }, OUT);
+  }
+  show(0);
+  setTimeout(next, SHOW);
+
+  // Corazoncitos y estrellitas pastel que suben de vez en cuando
+  const symbols = ['♥','♡','✦','♥'];
+  const colors  = ['#F9A8D4','#FBCFE8','#FFFFFF','#FDE2A7','#EC4899'];
+  function spawn(){
+    const s = slides[i];
+    if (!s.classList.contains('active')) return;
+    const r = s.getBoundingClientRect();
+    const el = document.createElement('span');
+    el.className = 'floater';
+    el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    el.style.left = (r.left + Math.random()*r.width) + 'px';
+    el.style.top  = (r.top + Math.random()*r.height*0.25) + 'px';
+    el.style.fontSize = (2 + Math.random()*2.2) + 'vw';
+    el.style.color = colors[Math.floor(Math.random()*colors.length)];
+    el.style.setProperty('--dur', (3.5 + Math.random()*2) + 's');
+    el.style.setProperty('--dx', ((Math.random()-.5)*12) + 'vw');
+    el.style.setProperty('--rot', ((Math.random()-.5)*50) + 'deg');
+    stage.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+  setInterval(spawn, 750);
+</script>
+</body>
+</html>
