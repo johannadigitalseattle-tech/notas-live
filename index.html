@@ -166,37 +166,37 @@
 </div>
 
 <script>
-  // Cada notita se muestra 5 minutos y rota en bucle infinito.
-  // Para probar rápido, agrega ?demo al final del link (cambia cada 8 segundos, fondo gris).
+  // Cada 3 minutos sale UNA notita, se queda 30 segundos y se esconde.
+  // A los 3 minutos sale la siguiente, en bucle infinito.
+  // Para probar rápido, agrega ?demo al final del link (sale 6 seg cada 10 seg, fondo gris).
   const DEMO = new URLSearchParams(location.search).has('demo');
   if (DEMO) document.body.classList.add('demo');
-  const SHOW = DEMO ? 8000 : 5 * 60 * 1000;
-  const OUT  = 900;   // lo que dura la salida
-  const GAP  = 600;   // pausita antes de la siguiente
+  const SHOW  = DEMO ? 6000  : 30 * 1000;      // 30 segundos visible
+  const EVERY = DEMO ? 10000 : 3 * 60 * 1000;  // una notita cada 3 minutos
+  const OUT   = 900;                           // lo que dura la salida
 
   const slides = [...document.querySelectorAll('.slide')];
   const stage  = document.querySelector('.stage');
   let i = 0;
 
-  function show(n){ slides[n].classList.remove('leaving'); slides[n].classList.add('active'); }
-  function next(){
+  function cycle(){
     const cur = slides[i];
-    cur.classList.remove('active'); cur.classList.add('leaving');
+    cur.classList.remove('leaving'); cur.classList.add('active');
     setTimeout(() => {
-      cur.classList.remove('leaving');
-      i = (i + 1) % slides.length;
-      setTimeout(() => { show(i); setTimeout(next, SHOW); }, GAP);
-    }, OUT);
+      cur.classList.remove('active'); cur.classList.add('leaving');
+      setTimeout(() => cur.classList.remove('leaving'), OUT);
+    }, SHOW);
+    i = (i + 1) % slides.length;
   }
-  show(0);
-  setTimeout(next, SHOW);
+  cycle();
+  setInterval(cycle, EVERY);
 
   // Corazoncitos y estrellitas pastel que suben de vez en cuando
   const symbols = ['♥','♡','✦','♥'];
   const colors  = ['#F9A8D4','#FBCFE8','#FFFFFF','#FDE2A7','#EC4899'];
   function spawn(){
-    const s = slides[i];
-    if (!s.classList.contains('active')) return;
+    const s = document.querySelector('.slide.active');
+    if (!s) return;
     const r = s.getBoundingClientRect();
     const el = document.createElement('span');
     el.className = 'floater';
